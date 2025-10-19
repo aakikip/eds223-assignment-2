@@ -33,21 +33,23 @@ This repository contains the following files
 5. README.md
 
 **File Structure**
-
+```
 data/
     └── ejscreen
     └── gbif-birds-LA
     └── mapping-inequality
 figs/
+    ├── birds-obs-la.jpg
     ├── holc-block.jpg
-    ├── summary-ejscreen.jpg
-    └── bird-obs-la.jpg
+    └── summary-ejscreen.jpg
 .DS_Store
 .gitignore
 eds223-assignment-2.Rproj
 ej_screen.pdf
 ej_screen.qmd
 README.md
+test_package.R
+```
 
 ### Data
 
