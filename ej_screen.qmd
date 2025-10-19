@@ -1,5 +1,5 @@
 ---
-title: "Exploration of Environmental Justice"
+title: "Exploring patterns of Environmental Justice"
 author: Aakriti Poudel
 date: "10/08/2025"
 format: pdf
@@ -50,14 +50,16 @@ la_birds <- sf::st_read(here::here("data",
 ```{r}
 #| include: false
 # Check the elements in the column "STATE_NAME"
-unique(ejscreen$STATE_NAME)
+# unique(ejscreen$STATE_NAME)
 
 # Check the elements in the column "ST_ABBREV"
-unique(ejscreen$ST_ABBREV)
+# unique(ejscreen$ST_ABBREV)
 
 # Check the elements in the column "CNTY_NAME"
-#unique(california$CNTY_NAME)
+# unique(california$CNTY_NAME)
 ```
+
+## Filter and transform data
 
 ```{r}
 # Filter to a county you are interested in: Los Angeles County
@@ -72,10 +74,6 @@ st_crs(map_inequality) == st_crs(la)
 ```
 
 ```{r}
-#| output: false
-#| warning: false
-#| message: false
-
 # Transform the CRS of a dataset
 map_ineq_transform <- st_transform(map_inequality, crs = st_crs(la))
 
@@ -91,7 +89,10 @@ if(st_crs(map_ineq_transform) == st_crs(la)){
 
 ### Legacy of redlining in current environmental (in)justice
 
-**1. Create a map of historical redlining neighborhoods**
+**1. Create a map of historical redlining neighborhoods**\
+a. neighborhoods colored by HOLC grade\
+b. an appropriate base map\
+c. a clear title and legend\
 
 ```{r}
 # Plot a map of historical redlining neighborhood
@@ -113,6 +114,7 @@ redlining_area <- tm_shape(map_inequality) +
 
 redlining_area
 ```
+## Save map
 
 ```{r}
 # Save HOLC grade block map
@@ -120,10 +122,11 @@ holc_block <- tmap_save(redlining_area, here::here('figs', 'holc-block.jpg'),
                         width = 12, height = 12)
 ```
 
+## Spatial join
+
 **2. Create a table summarizing:**\
 a. the percentage of census block groups that fall within each HOLC grade\
-b. Also include the percent of census black groups that don’t fall within a HOLC grade.
-
+b. Also include the percent of census black groups that don’t fall within a HOLC grade.\
 ***Hint:*** The HOLC data contains the grades and the EJScreen data contains the census blocks, so you will need to combine the data spatially before doing summary statistics. Once you combine and no longer need the geometries, you can use `st_drop_geometry()`.
 
 ```{r}
@@ -138,6 +141,8 @@ la_ej <- st_join(map_ineq_transform, la, join = st_intersects) %>%
 # Check the number of NA in column grade
 sum(is.na(la_ej$grade))
 ```
+
+## Summary table
 
 ```{r}
 # Total number of rows in dataset
@@ -158,10 +163,12 @@ holc_summary_table <- holc_summary %>%
   kable_styling(bootstrap_options = c('striped', 'bordered', 'hover'),
                 full_width = FALSE,
                 position = 'center') %>%
-  column_spec(1:3, width = '3in')
+  column_spec(1:3, width = '1.5in')
 
 holc_summary_table
 ```
+
+## Data visualization
 
 **3. Create at least two visualizations summarizing current conditions (from the EJScreen data) within HOLC grades using the mean of the following variables (you may combine variables or create separate plots):**
 
@@ -172,13 +179,13 @@ c.  percentile for low life expectancy
 Use ggplot for your visualizations! You will first need to calculate mean of each variable grouped by HOLC grade.
 
 ```{r}
-# Calculate mean of % low income, percentile for Particulate Matter 2.5 and percentile for low life expectancy
+# Calculate mean
 la_ej_mean <- la_ej %>%
   filter(grade != 'NA') %>% 
   group_by(grade) %>%
-  summarise(lowincome_mean = 100 * mean(LOWINCPCT, na.rm = TRUE),
-            pm_mean = mean(P_PM25, na.rm = TRUE),
-            lifeexp_mean = mean(P_LIFEEXPPCT, na.rm = TRUE))
+  summarise(lowincome_mean = 100 * mean(LOWINCPCT, na.rm = TRUE), # % low income
+            pm_mean = mean(P_PM25, na.rm = TRUE), # percentile for Particulate Matter 2.5
+            lifeexp_mean = mean(P_LIFEEXPPCT, na.rm = TRUE)) # percentile for low life expectancy
 
 # Change dataset to long dataset for visualization
 la_ej_long <- la_ej_mean %>%
@@ -207,7 +214,7 @@ summary_ejscreen <- ggplot(la_ej_long, aes(x = grade, y = mean_value, fill = gra
        fill = 'HOLC Grade') +
        theme_minimal() +
   theme(legend.position = 'none',
-        axis.text.x = element_text(angle = 45, hjust = 1))
+        axis.text.x = element_text(angle = 0, hjust = 1))
 
 summary_ejscreen
 
@@ -219,19 +226,30 @@ ggsave(here::here('figs', 'summary-ejscreen.jpg'),
 
 ```
 
+## Interpret patterns
+
 **4. Write a brief paragraph reflecting on these results.**
 
-a.  Interpret the patterns you observe in your results. **Answer** The ***'Summary of EJScreen data in HOLC grade of LA county'*** figure reveals clear disparities across historically redlined neighborhoods
+a\. Interpret the patterns you observe in your results.\
+**Answer**\
+The 'Summary of EJScreen data in HOLC grade of LA county' figure reveals clear disparities across historically redlined neighborhoods.
 
 The low income graph shows that block D neighborhoods, historically redlined areas, have the highest percentage of low income population compared to Grades A, B, and C. This indicates that redlined areas contain higher concentrations of economically disadvantaged populations. The life expectancy graph demonstrates that block D neighborhoods have the highest percentile for low life expectancy. Residents in redlined areas experience shorter lifespans compared to those in better-graded neighborhoods. The PM2.5 graph shows that block D neighborhoods have the highest particulate matter pollution levels. The population in redlined areas face greater exposure to air pollution than those in other neighborhoods.
 
-These patterns align with existing research showing that redlined neighborhoods typically have less green space and higher temperatures than other areas.
+These patterns align with existing research showing that redlined neighborhoods typically have less green space and higher temperatures than other areas.\
 
-b.  Discuss potential relationships between historical redlining grades and current environmental/socioeconomic conditions. **Answer** The analysis reveals a strong relationship between historical redlining practices and present-day environmental and socioeconomic conditions. Communities in formerly redlined neighborhoods (Grade D) experience multiple disadvantages: higher rates of poverty, reduced life expectancy, and increased exposure to air pollution. These areas often lack adequate infrastructure, healthcare facilities, and green spaces that are more common in higher-graded neighborhoods. This pattern demonstrates how discriminatory housing policies from the 1930s continue to affect environmental and health outcomes today. The legacy of redlining has created lasting inequalities in access to environmental quality and economic opportunity, disproportionately impacting low-income communities.
+b\. Discuss potential relationships between historical redlining grades and current environmental/ socioeconomic conditions.\
+**Answer**\
+The analysis reveals a strong relationship between historical redlining practices and present-day environmental and socioeconomic conditions. Communities in formerly redlined neighborhoods (Grade D) experience multiple disadvantages: higher rates of poverty, reduced life expectancy, and increased exposure to air pollution. These areas often lack adequate infrastructure, healthcare facilities, and green spaces that are more common in higher-graded neighborhoods. This pattern demonstrates how discriminatory housing policies from the 1930s continue to affect environmental and health outcomes today. The legacy of redlining has created lasting inequalities in access to environmental quality and economic opportunity, disproportionately impacting low-income communities.
 
-### Part 2: Legacy of redlining in biodiversity observations
+## Filter and transform data
 
-**Create a visualizations that shows:** a. The percentage of bird observations within each HOLC grade b. Include an appropiate title, axis labels, and legend ***Hints:*** Ensure the bird observations and HOLC dataset have matching CRS’, then perform a spatial join to assign each bird observations to a corresponding HOLC grade.
+### Legacy of redlining in biodiversity observations
+
+**Create a visualizations that shows:**\
+a. The percentage of bird observations within each HOLC grade\
+b. Include an appropriate title, axis labels, and legend\
+***Hints:*** Ensure the bird observations and HOLC dataset have matching CRS’, then perform a spatial join to assign each bird observations to a corresponding HOLC grade.
 
 ***Spolier alert!! Our results don’t match the findings from Ellis-Soto et al. 2023! Read the abstract of the study. Why might we have obtained different results in our analysis? What did the paper consider that we did not?***
 
@@ -254,9 +272,9 @@ la_birds_transform <- st_transform(la_birds, crs = st_crs(map_ineq_transform))
 la_birds_transform
 ```
 
+## Spatial join
+
 ```{r}
-
-
 # Spatial join between bird observation and HOLC grade
 holc_birds <- st_join(map_ineq_transform, la_birds_transform, join = st_intersects) %>%
 # Drop geometry
@@ -274,15 +292,11 @@ holc_birds_percent <- holc_birds %>%
   group_by(year) %>%
   mutate(percentage = (count / sum(count)) * 100) %>%
   ungroup()
-
-holc_birds_percent
 ```
 
-```{r}
-#| output: false
-#| warning: false
-#| message: false
+## Data visualization
 
+```{r}
 # Visualization of percentage of bird observations within each HOLC grade
 ggplot(holc_birds_percent, aes(x = year,
                                y = percentage,
@@ -302,4 +316,18 @@ ggplot(holc_birds_percent, aes(x = year,
        color = 'HOLC Grade') +
   theme_minimal(base_size = 8)
 
+# Save the plot of summary of EJScreen data
+ggsave(here::here('figs', 'birds-obs-la.jpg'),
+                       width = 10,
+                       height = 8,
+                       dpi = 300)
+
 ```
+
+## Description of pattern
+
+**Why might we have obtained different results in our analysis? What did the paper consider that we did not?**\
+
+The figure above shows the patterns in bird observation across the study blocks. The Block C has the highest number of bird observations throughout the year 2021 to 2023. In 2021, Blocks A and D had remarkably similar observation frequencies, suggesting comparable habitat quality or observer effort in these locations. However, a notable divergence can be noticed in the year 2022 and 2023. Block D showed a substantial increase in bird observations, steadily surpassing both Block A and Block B. This increasing trend in Block D indicates the potential changes in habitat conditions, seasonal bird population shifts and or variations in survey intensity across these locations over time.\
+
+The referenced paper gives a comprehensive relationship between historic racially explicit zoning policies, specifically redlining, and contemporary biodiversity data collection patterns. This study explored how the historic racially explicit zoning policies (redlining) relate to biodiversity data collection across and within 195 metropolitan areas in the United States covering more than 30 million population across 38 states. The study predominantly covers the eastern region, where historical redlining was extensively documented and where the majority of the analyzed metropolitan areas are located. In contrast, our bird observation data exploration is concentrated exclusively on Los Angeles County, the western region. This geographic location allows for deeper contextual understanding of local environmental justice issues, community biodiversity patterns and the historical trajectory of discriminatory housing policies in California. While the paper offers county level analysis and our analysis is one place based approach.

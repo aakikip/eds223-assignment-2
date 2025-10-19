@@ -34,6 +34,20 @@ This repository contains the following files
 
 **File Structure**
 
+data/
+    └── ejscreen
+    └── gbif-birds-LA
+    └── mapping-inequality
+figs/
+    ├── holc-block.jpg
+    ├── summary-ejscreen.jpg
+    └── bird-obs-la.jpg
+.DS_Store
+.gitignore
+eds223-assignment-2.Rproj
+ej_screen.pdf
+ej_screen.qmd
+README.md
 
 ### Data
 
