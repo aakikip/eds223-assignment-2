@@ -54,7 +54,6 @@ test_package.R
 ### Data
 
 #### EJScreen Data
-
 The data for EJScreen is derived from the United States Environmental Protection Agency’s previous [EJScreen: Environmental Justice Screening and Mapping Tool](https://www.epa.gov/ejscreen). The tool intended to support research and policy goals. This tool is no longer available, an unofficial version of the tool can be found [here](https://pedp-ejscreen.azurewebsites.net/). The data can be downloaded [here](https://drive.google.com/file/d/1nG6Nj1bXfzQFOVMO8Km3eNy4SWu1YcIQ/view).
 
 #### HOLC Redlining

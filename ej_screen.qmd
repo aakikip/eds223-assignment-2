@@ -69,6 +69,7 @@ la <- ejscreen %>%
 ```
 
 ```{r}
+#| include: false
 # Check whether CRS matches
 st_crs(map_inequality) == st_crs(la)
 ```
@@ -79,10 +80,11 @@ map_ineq_transform <- st_transform(map_inequality, crs = st_crs(la))
 
 # Check CRS of the dataset
 if(st_crs(map_ineq_transform) == st_crs(la)){
-  print("It's a match!")
+  print("Coordinate reference systems match!")
 } else {
-  print("It's not a match!!")
+  warning("Update coordinate reference systems to match!")
 }
+
 ```
 
 ## Create map
@@ -95,25 +97,35 @@ b. an appropriate base map\
 c. a clear title and legend\
 
 ```{r}
+#| fig-width: 6
+#| fig-height: 6
+
 # Plot a map of historical redlining neighborhood
+tmap_options(component.autoscale = FALSE)
 
 redlining_area <- tm_shape(map_inequality) +
   # neighborhoods colored by HOLC grade
   tm_polygons(fill = 'grade',
-              fill.scale = tm_scale(values = c('A' = 'forestgreen',
-                                               'B' = 'blue',
-                                               'C' = 'yellow2',
-                                               'D' = 'red3')),
+              fill.scale = tm_scale_categorical(values = c('A' = 'forestgreen',
+                                                            'B' = 'blue',
+                                                            'C' = 'yellow2',
+                                                            'D' = 'red3')),
               fill.legend = tm_legend(title = 'HOLC Grade')) +
-  tm_title(text = 'Historical redlining neighborhoods colored by HOLC grade',
+  tm_title(text = 'Historical redlining neighborhoods colored by HOLC grade in LA County',
            fontface = 'bold',
-           size = 1,
+           size = 0.8,
            position = tm_pos_out('center', 'top')) +
-  tm_basemap(c('OpenStreetMap', 'Esri.WorldImagery', 'CartoDB.Positron')) +
-  tm_legend()
+  tm_compass(type = 'arrow', 
+             position = c('left', 'bottom'),
+             show.labels = 1,
+             text.size = 0.4) +
+  tm_scalebar(position = c('left', 'bottom'),
+              text.size = 0.4) +
+  tm_basemap(c('OpenStreetMap', 'Esri.WorldImagery', 'CartoDB.Positron'))
 
 redlining_area
 ```
+
 ## Save map
 
 ```{r}
@@ -195,7 +207,7 @@ la_ej_long <- la_ej_mean %>%
   mutate(variable = case_when(
     variable == 'lowincome_mean' ~ '% low income',
     variable == 'pm_mean' ~ 'PM2.5 percentile',
-    variable == 'lifeexp_mean' ~ 'Low life expectancy percentile'))
+    variable == 'lifeexp_mean' ~ 'Low life expectancy\n percentile'))
 
 ```
 
@@ -213,7 +225,7 @@ summary_ejscreen <- ggplot(la_ej_long, aes(x = grade, y = mean_value, fill = gra
        y = 'Mean value (%)',
        fill = 'HOLC Grade') +
        theme_minimal() +
-  theme(legend.position = 'none',
+  theme(legend.position = 'right',
         axis.text.x = element_text(angle = 0, hjust = 1))
 
 summary_ejscreen
@@ -254,22 +266,19 @@ b. Include an appropriate title, axis labels, and legend\
 ***Spolier alert!! Our results don’t match the findings from Ellis-Soto et al. 2023! Read the abstract of the study. Why might we have obtained different results in our analysis? What did the paper consider that we did not?***
 
 ```{r}
+#| warning: true
+
 # Check CRS of the dataset
 if(st_crs(map_ineq_transform) == st_crs(la_birds)){
-  print("It's a match!")
+  print("Coordinate reference systems match!")
 } else {
-  print("It's not a match!!")
+  warning("Update coordinate reference systems to match!")
 }
 ```
 
 ```{r}
-#| output: false
-#| warning: false
-#| message: false
-
 # Transform the CRS of a dataset
 la_birds_transform <- st_transform(la_birds, crs = st_crs(map_ineq_transform))
-la_birds_transform
 ```
 
 ## Spatial join
@@ -282,6 +291,9 @@ holc_birds <- st_join(map_ineq_transform, la_birds_transform, join = st_intersec
 ```
 
 ```{r}
+#| warning: false
+#| message: false
+
 # Calculate the percentage of bird observations within each HOLC grade
 holc_birds_percent <- holc_birds %>%
   filter(grade != 'NA', # Filter out the NA
@@ -297,6 +309,9 @@ holc_birds_percent <- holc_birds %>%
 ## Data visualization
 
 ```{r}
+#| warning: false
+#| message: false
+
 # Visualization of percentage of bird observations within each HOLC grade
 ggplot(holc_birds_percent, aes(x = year,
                                y = percentage,
