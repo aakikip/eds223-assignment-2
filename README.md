@@ -64,7 +64,7 @@ The Global Biodiversity Information Facility is the largest aggregator of biodiv
 
 ### Course Information
 
--   **Course Title:** [EDS 222 - Geospatial Analysis & Remote Sensing](https://eds-223-geospatial.github.io/)
+-   **Course Title:** [EDS 223 - Geospatial Analysis & Remote Sensing](https://eds-223-geospatial.github.io/)
 -   **Term:** Fall 2025
 -   **Program:** [UCSB Masters in Environmental Data Science](https://bren.ucsb.edu/masters-programs/master-environmental-data-science).
 
